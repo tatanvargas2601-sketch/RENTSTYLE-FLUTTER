@@ -1,0 +1,45 @@
+name: rentstyle_app
+description: "RentStyle - app móvil (migración desde React) para alquiler de prendas."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Networking
+  dio: ^5.4.3
+
+  # Estado
+  flutter_riverpod: ^2.5.1
+
+  # Navegación con guards por rol
+  go_router: ^14.2.0
+
+  # Guardar el token JWT de forma segura (equivalente a localStorage pero cifrado)
+  flutter_secure_storage: ^9.2.2
+
+  # Imágenes de Cloudinary con cache
+  cached_network_image: ^3.3.1
+
+  # Selección de imágenes para subir prendas / avatar
+  image_picker: ^1.1.2
+
+  # Formateo de fechas y moneda (igual que tu Intl en React)
+  intl: ^0.19.0
+
+  # Mismas fuentes que el frontend React (Inter + Playfair Display, vía Google Fonts)
+  google_fonts: ^6.2.1
+
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
