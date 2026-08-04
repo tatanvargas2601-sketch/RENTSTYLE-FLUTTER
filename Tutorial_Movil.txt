@@ -1,0 +1,142 @@
+Ejecucion por PC-CHROME
+
+unzip rentstyle_flutter_compartir.zip -d rentstyle_flutter
+
+cd rentstyle_flutter
+
+flutter pub get
+
+flutter run -d chrome --web-port=8080.
+
+
+¡De una! Ojo con un detalle importante antes de arrancar: para compilar y correr en iOS necesitás sí o sí una Mac con Xcode (Apple no permite compilar apps iOS desde Windows/Linux, ni con cable ni sin cable). Si estás en la PC con Windows que vimos en tus capturas, la parte de Android la podés hacer ahí mismo, pero para iOS vas a necesitar prestada/tuya una Mac. Te dejo las dos guías completas igual.
+
+📱 ANDROID (desde tu PC Windows, por USB)
+
+1. Habilitar el modo desarrollador en el celu
+
+Ajustes → Acerca del teléfono
+
+Tocá 7 veces seguidas sobre Número de compilación (o Versión de MIUI/One UI según la marca)
+
+Te va a decir "Ya sos desarrollador"
+
+2. Habilitar depuración USB
+
+Ajustes → Opciones de desarrollador (apareció después del paso anterior)
+
+Activá Depuración USB
+
+3. Conectar y autorizar
+
+Conectá el celu a la PC con el cable USB
+
+En el celu va a saltar un popup: "¿Permitir depuración USB desde esta computadora?" → Aceptar (marcá "confiar siempre" si no querés que pregunte cada vez)
+En la PC, verificá que lo reconoce:
+
+powershell
+
+flutter devices
+
+Debería listar tu celu. Si no aparece, instalá los drivers USB de tu marca (Samsung, Xiaomi, etc.) o probá con otro cable (algunos cables son "solo carga").
+
+4. El truco clave para que el login funcione por USB: adb reverse
+
+Como el celu está conectado por cable, podés "engañarlo" para que localhost en el celu apunte a localhost de tu PC, sin tocar IP de red ni firewall:
+
+powershell
+
+adb reverse tcp:5000 tcp:5000
+
+Con este comando corrido una vez (después de conectar el cable), podés dejar en tu api_client.dart directamente:
+
+dart
+
+String get kApiBaseUrl => 'http://localhost:5000';
+
+(reemplazando el kIsWeb ? ... : 'http://10.0.2.2:5000' que tenías, porque eso era para el emulador, no para celu físico)
+
+5. Correr la app
+
+powershell
+
+flutter run -d <id-del-dispositivo>
+
+(el id te lo da flutter devices, o si es el único conectado simplemente flutter run)
+
+⚠️ Si volvés a desconectar y reconectar el cable, tenés que correr adb reverse tcp:5000 tcp:5000 de nuevo.
+
+🍎 iOS (necesitás una Mac)
+
+1. En la Mac: instalar herramientas
+
+bash
+
+xcode-select --install
+
+flutter doctor
+
+Aceptá las licencias si pide:
+
+bash
+
+sudo xcodebuild -license
+
+2. Configurar firma de la app (obligatorio, aunque sea gratis)
+
+Abrí el proyecto con Xcode (no como carpeta, sino el workspace):
+bash
+
+open ios/Runner.xcworkspace
+
+En el panel izquierdo, seleccioná Runner → pestaña Signing & Capabilities
+
+En Team, elegí tu Apple ID (si no tenés uno cargado, Xcode → Settings → Accounts → + para agregar tu Apple ID gratis)
+
+Cambiá el Bundle Identifier a algo único, tipo com.tunombre.rentstyleapp (no puede repetirse con el que usó otra persona)
+
+3. Conectar el iPhone
+
+Conectalo por cable (Lightning o USB-C)
+
+En el iPhone: "¿Confiar en esta computadora?" → Confiar, metés tu clave
+
+Si es iOS 16+, activá el modo desarrollador en el iPhone:
+
+Ajustes → Privacidad y seguridad → Modo desarrollador → activarlo → reiniciar el celu
+
+4. Confiar en tu certificado (la primera vez)
+
+Después de intentar correr la app una vez, en el iPhone:
+
+Ajustes → General → VPN y gestión de dispositivos → tocá tu Apple ID/perfil → Confiar
+
+5. Correr
+
+bash
+
+flutter devices
+
+flutter run -d <id-del-iphone>
+
+6. Para el backend (iOS no tiene el truco de adb reverse)
+
+Acá sí necesitás que el iPhone y la Mac estén en la misma red Wi-Fi, y usar la IP de la Mac en la red:
+
+bash
+
+ipconfig getifaddr en0
+
+Y en api_client.dart:
+
+dart
+
+String get kApiBaseUrl => 'http://<IP-de-tu-Mac>:5000';
+
+Además, arrancá tu Flask escuchando en todas las interfaces, no solo localhost:
+
+python
+
+app.run(host='0.0.0.0', port=5000)
+
+Y revisá que el firewall de la Mac no bloquee el puerto 5000.
