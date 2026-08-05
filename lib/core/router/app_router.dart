@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../screens/auth/login_screen.dart';
 import '../../screens/auth/register_screen.dart';
 import '../../screens/home/home_screen.dart';
+import '../../screens/user/dashboard_user_screen.dart';
 import '../../screens/home/prenda_detail_screen.dart';
 import '../../screens/cart/cart_screen.dart';
 import '../../screens/profile/profile_screen.dart';
@@ -20,6 +21,9 @@ import '../../screens/admin/productos_admin_screen.dart';
 import '../../screens/admin/inventario_admin_screen.dart';
 import '../../screens/admin/usuarios_admin_screen.dart';
 import '../../screens/admin/reservas_admin_screen.dart';
+import '../../screens/admin/lotes_admin_screen.dart';
+import '../../screens/admin/comprobantes_admin_screen.dart';
+import '../../screens/citas/citas_admin_screen.dart';
 
 /// Puente entre el estado de Riverpod (authProvider) y go_router,
 /// que necesita un Listenable para saber cuándo re-evaluar `redirect`.
@@ -44,7 +48,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final protectedAdmin = state.matchedLocation.startsWith('/admin');
       final protectedEmpleado = state.matchedLocation.startsWith('/empleado');
-      final protectedUser = ['/cart', '/profile', '/citas', '/agendar-cita', '/mis-reservas']
+      final protectedUser = ['/cart', '/profile', '/citas', '/agendar-cita', '/mis-reservas', '/dashboarduser']
           .any((p) => state.matchedLocation.startsWith(p));
 
       // No autenticado intentando entrar a zona protegida -> login
@@ -79,6 +83,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/', builder: (c, s) => const HomeScreen()),
+      GoRoute(path: '/dashboarduser', builder: (c, s) => const DashboardUserScreen()),
       GoRoute(path: '/login', builder: (c, s) => const LoginScreen()),
       GoRoute(path: '/registro', builder: (c, s) => const RegisterScreen()),
       GoRoute(
@@ -101,11 +106,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/admin/usuarios', builder: (c, s) => const UsuariosAdminScreen()),
           GoRoute(path: '/admin/inventario', builder: (c, s) => const InventarioAdminScreen()),
           GoRoute(path: '/admin/reservas', builder: (c, s) => const ReservasAdminScreen()),
+          GoRoute(path: '/admin/lotes', builder: (c, s) => const LotesAdminScreen()),
+          GoRoute(path: '/admin/comprobantes', builder: (c, s) => const ComprobantesAdminScreen()),
+          GoRoute(path: '/admin/citas', builder: (c, s) => const CitasAdminScreen()),
           GoRoute(path: '/empleado', builder: (c, s) => const DashboardScreen()),
           GoRoute(path: '/empleado/productos', builder: (c, s) => const ProductosAdminScreen()),
           GoRoute(path: '/empleado/usuarios', builder: (c, s) => const UsuariosAdminScreen()),
           GoRoute(path: '/empleado/inventario', builder: (c, s) => const InventarioAdminScreen()),
           GoRoute(path: '/empleado/reservas', builder: (c, s) => const ReservasAdminScreen()),
+          GoRoute(path: '/empleado/lotes', builder: (c, s) => const LotesAdminScreen()),
+          GoRoute(
+              path: '/empleado/comprobantes', builder: (c, s) => const ComprobantesAdminScreen()),
+          GoRoute(path: '/empleado/citas', builder: (c, s) => const CitasAdminScreen()),
         ],
       ),
     ],
@@ -118,6 +130,8 @@ String _homeForRole(AppRole? role) {
       return '/admin';
     case AppRole.empleado:
       return '/empleado';
+    case AppRole.user:
+      return '/dashboarduser';
     default:
       return '/';
   }

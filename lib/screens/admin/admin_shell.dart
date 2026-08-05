@@ -15,11 +15,14 @@ class AdminShell extends ConsumerWidget {
     final base = isAdmin ? '/admin' : '/empleado';
     final location = GoRouterState.of(context).matchedLocation;
 
-    final items = [
+  final items = [
       (icon: Icons.dashboard, label: 'Dashboard', path: base),
       (icon: Icons.checkroom, label: 'Productos', path: '$base/productos'),
+      (icon: Icons.layers_outlined, label: 'Lotes', path: '$base/lotes'),
       (icon: Icons.inventory_2, label: 'Inventario', path: '$base/inventario'),
       (icon: Icons.event_note, label: 'Reservas', path: '$base/reservas'),
+      (icon: Icons.receipt_long, label: 'Comprobantes', path: '$base/comprobantes'),
+      (icon: Icons.event_available, label: 'Citas', path: '$base/citas'),
       if (isAdmin) (icon: Icons.people, label: 'Usuarios', path: '$base/usuarios'),
     ];
 

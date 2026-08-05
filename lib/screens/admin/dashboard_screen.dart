@@ -12,10 +12,13 @@ class DashboardScreen extends ConsumerWidget {
     final auth = ref.watch(authProvider);
     final base = auth.role == AppRole.admin ? '/admin' : '/empleado';
 
-    final cards = [
+  final cards = [
       (icon: Icons.checkroom, label: 'Productos', path: '$base/productos'),
+      (icon: Icons.layers_outlined, label: 'Lotes', path: '$base/lotes'),
       (icon: Icons.inventory_2, label: 'Inventario', path: '$base/inventario'),
       (icon: Icons.event_note, label: 'Reservas', path: '$base/reservas'),
+      (icon: Icons.receipt_long, label: 'Comprobantes', path: '$base/comprobantes'),
+      (icon: Icons.event_available, label: 'Citas', path: '$base/citas'),
       if (auth.role == AppRole.admin)
         (icon: Icons.people, label: 'Usuarios', path: '$base/usuarios'),
     ];

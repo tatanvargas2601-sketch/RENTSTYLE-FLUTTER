@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/usuario_service.dart';
+import 'usuario_form_screen.dart';
 
 final usuarioServiceProvider = Provider((ref) => UsuarioService());
 final usuariosAdminProvider = FutureProvider.autoDispose((ref) {
@@ -15,6 +16,15 @@ class UsuariosAdminScreen extends ConsumerWidget {
     final usuariosAsync = ref.watch(usuariosAdminProvider);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final created = await Navigator.of(context).push<bool>(
+            MaterialPageRoute(builder: (_) => const UsuarioFormScreen()),
+          );
+          if (created == true) ref.invalidate(usuariosAdminProvider);
+        },
+        child: const Icon(Icons.add),
+      ),
       body: usuariosAsync.when(
         data: (usuarios) => ListView.builder(
           itemCount: usuarios.length,
@@ -27,12 +37,26 @@ class UsuariosAdminScreen extends ConsumerWidget {
               ),
               title: Text(u.nombre),
               subtitle: Text('${u.correo} · ${u.rolNombre ?? 'sin rol'}'),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: () async {
-                  await ref.read(usuarioServiceProvider).delete(u.idUsuario);
-                  ref.invalidate(usuariosAdminProvider);
-                },
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () async {
+                      final updated = await Navigator.of(context).push<bool>(
+                        MaterialPageRoute(builder: (_) => UsuarioFormScreen(existing: u)),
+                      );
+                      if (updated == true) ref.invalidate(usuariosAdminProvider);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () async {
+                      await ref.read(usuarioServiceProvider).delete(u.idUsuario);
+                      ref.invalidate(usuariosAdminProvider);
+                    },
+                  ),
+                ],
               ),
             );
           },

@@ -1,127 +1,174 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/catalog_provider.dart';
-import '../../providers/cart_provider.dart';
-import '../../widgets/loading_error_view.dart';
-import '../../widgets/prenda_card.dart';
+import '../../core/theme/app_theme.dart';
+import '../../providers/theme_provider.dart';
 
+/// Equivalente exacto a Inicio.jsx + Nav.jsx: es solo la landing pública
+/// (eyebrow + título + párrafo + tarjeta "Tu armario premium"), SIN catálogo.
+/// El catálogo real vive en DashboardUserScreen ("/dashboarduser"), a donde
+/// se entra después de iniciar sesión (igual que en React).
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authProvider);
-    final prendasAsync = ref.watch(prendasProvider);
-    final categoriasAsync = ref.watch(categoriasProvider);
-    final categoriaSel = ref.watch(categoriaFiltroProvider);
-    final cartCount = ref.watch(cartProvider).length;
+    final isDark = ref.watch(themeProvider) == ThemeMode.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('RentStyle'),
-        actions: [
-          IconButton(
-            icon: Badge(
-              label: Text('$cartCount'),
-              isLabelVisible: cartCount > 0,
-              child: const Icon(Icons.shopping_cart_outlined),
-            ),
-            onPressed: () => context.push('/cart'),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _PublicNav(isDark: isDark),
+              _HeroSection(isDark: isDark),
+            ],
           ),
-          if (auth.isAuthenticated)
-            IconButton(
-              icon: const Icon(Icons.person_outline),
-              onPressed: () => context.push('/profile'),
-            )
-          else
-            TextButton(
-              onPressed: () => context.push('/login'),
-              child: const Text('Iniciar sesión'),
-            ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PublicNav extends ConsumerWidget {
+  final bool isDark;
+  const _PublicNav({required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('RentStyle', style: Theme.of(context).textTheme.headlineSmall),
+          Wrap(
+            spacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _ThemeDot(isDark: isDark),
+              _Pill(label: 'Iniciar sesión', onTap: () => context.push('/login')),
+              _Pill(label: 'Registrarse', onTap: () => context.push('/registro')),
+            ],
+          ),
         ],
       ),
-      body: Column(
+    );
+  }
+}
+
+class _ThemeDot extends ConsumerWidget {
+  final bool isDark;
+  const _ThemeDot({required this.isDark});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return InkWell(
+      customBorder: const CircleBorder(),
+      onTap: () => ref.read(themeProvider.notifier).toggle(),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
+        ),
+        child: Center(
+          child: Container(
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: primary, width: 2),
+              gradient: LinearGradient(colors: [primary, Colors.transparent], stops: const [0.5, 0.5]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _Pill({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Colors.white.withOpacity(0.04)
+          : const Color(0xFFF5FAF4),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Text(label, style: Theme.of(context).textTheme.bodyLarge),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroSection extends StatelessWidget {
+  final bool isDark;
+  const _HeroSection({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 32, 20, 40),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hero, equivalente a la sección .hero de Inicio.jsx
+          // .eyebrow -> pill con el mismo texto
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text('Elegancia bajo demanda',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: 20),
+          Text('RentStyle', style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 44)),
+          const SizedBox(height: 16),
+          Text(
+            'Alquila atuendos cuidadosamente seleccionados para cada ocasión. '
+            'Diseño fresco, accesible y con estilo para tus eventos más especiales.',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                  height: 1.6,
+                ),
+          ),
+          const SizedBox(height: 28),
+          // .hero-tag
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-            color: Theme.of(context).colorScheme.surface,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('ELEGANCIA BAJO DEMANDA',
-                    style: TextStyle(
-                        letterSpacing: 3,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.primary)),
-                const SizedBox(height: 8),
-                Text('RentStyle', style: Theme.of(context).textTheme.headlineMedium),
+                Text('Tu armario premium', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 8),
                 Text(
-                  'Alquila atuendos cuidadosamente seleccionados para cada ocasión.',
+                  'Explora tus looks de gala, cóctel y eventos especiales con colores '
+                  'suaves y detalles cuidadosamente pensados',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
-            ),
-          ),
-          // Filtro de categorías, equivalente al selector en Inicio.jsx
-          SizedBox(
-            height: 48,
-            child: AsyncValueView(
-              value: categoriasAsync,
-              builder: (categorias) => ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ChoiceChip(
-                      label: const Text('Todas'),
-                      selected: categoriaSel == null,
-                      onSelected: (_) =>
-                          ref.read(categoriaFiltroProvider.notifier).state = null,
-                    ),
-                  ),
-                  ...categorias.map((c) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ChoiceChip(
-                          label: Text(c.nombre),
-                          selected: categoriaSel == c.idCategoria,
-                          onSelected: (_) => ref
-                              .read(categoriaFiltroProvider.notifier)
-                              .state = c.idCategoria,
-                        ),
-                      )),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: AsyncValueView(
-              value: prendasAsync,
-              builder: (prendas) => prendas.isEmpty
-                  ? const Center(child: Text('No hay prendas disponibles'))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(12),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 0.62,
-                      ),
-                      itemCount: prendas.length,
-                      itemBuilder: (context, i) {
-                        final p = prendas[i];
-                        return PrendaCard(
-                          prenda: p,
-                          onTap: () => context.push('/prenda/${p.idPrenda}'),
-                        );
-                      },
-                    ),
             ),
           ),
         ],

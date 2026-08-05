@@ -42,7 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       } else if (role == AppRole.empleado) {
         context.go('/empleado');
       } else {
-        context.go('/');
+        context.go('/dashboarduser');
       }
     } catch (e) {
       setState(() => _error = _friendlyError(e));

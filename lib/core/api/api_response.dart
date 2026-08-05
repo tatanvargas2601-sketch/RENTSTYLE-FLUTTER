@@ -1,5 +1,5 @@
-/// Tu backend Flask siempre responde con la forma:
-/// { "success": bool, "message": str, "data": ... }
+/// Tu backend Flask responde con la forma:
+/// { "status": "success" | "error", "message": str, "data": ... }
 /// (ver app/utils/response.py -> response_success / response_error)
 class ApiResponse<T> {
   final bool success;
@@ -14,7 +14,7 @@ class ApiResponse<T> {
   ) {
     final rawData = json['data'];
     return ApiResponse<T>(
-      success: json['success'] ?? false,
+      success: json['status'] == 'success',
       message: json['message']?.toString() ?? '',
       data: rawData != null && fromData != null ? fromData(rawData) : rawData,
     );

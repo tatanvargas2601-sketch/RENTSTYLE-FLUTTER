@@ -19,7 +19,7 @@ class AuthService {
     });
 
     final body = response.data as Map<String, dynamic>;
-    if (body['success'] != true) {
+    if (body['status'] != 'success') {
       throw Exception(body['message'] ?? 'Error al iniciar sesión');
     }
 
@@ -36,7 +36,7 @@ class AuthService {
   Future<Map<String, dynamic>?> verifyToken() async {
     try {
       final response = await _client.dio.get('/api/verify-token');
-      if (response.data['success'] == true) {
+      if (response.data['status'] == 'success') {
         return response.data['data'] as Map<String, dynamic>;
       }
       return null;
