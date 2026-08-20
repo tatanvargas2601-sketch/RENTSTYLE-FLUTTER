@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' hide Consumer;
+import 'package:provider/provider.dart';
+import '../../legacy_provider/favoritos_notifier.dart';
 import '../../models/inventario.dart';
 import '../../providers/catalog_provider.dart';
 import '../../providers/cart_provider.dart';
@@ -38,8 +40,25 @@ class PrendaDetailScreen extends ConsumerWidget {
                     children: [
                       Text(prenda.nombrePrenda, style: Theme.of(context).textTheme.headlineSmall),
                       const SizedBox(height: 8),
-                      Text('S/ ${prenda.precioAlquiler.toStringAsFixed(2)} / alquiler',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('S/ ${prenda.precioAlquiler.toStringAsFixed(2)} / alquiler',
+                              style: Theme.of(context).textTheme.titleMedium),
+                          Consumer<FavoritosNotifier>(
+                            builder: (context, favoritos, _) {
+                              final esFavorito = favoritos.esFavorito(prenda.idPrenda);
+                              return IconButton(
+                                icon: Icon(
+                                  esFavorito ? Icons.favorite : Icons.favorite_border,
+                                  color: esFavorito ? Colors.red : null,
+                                ),
+                                onPressed: () => favoritos.toggle(prenda.idPrenda),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       if (prenda.descripcion != null) Text(prenda.descripcion!),
                       const SizedBox(height: 20),

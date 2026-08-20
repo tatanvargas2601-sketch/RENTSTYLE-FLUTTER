@@ -64,7 +64,7 @@ class DashboardUserScreen extends ConsumerWidget {
                       label: const Text('Todas'),
                       selected: categoriaSel == null,
                       onSelected: (_) =>
-                          ref.read(categoriaFiltroProvider.notifier).state = null,
+                          ref.read(categoriaFiltroProvider.notifier).set(null),
                     ),
                   ),
                   ...categorias.map((c) => Padding(
@@ -74,7 +74,7 @@ class DashboardUserScreen extends ConsumerWidget {
                           selected: categoriaSel == c.idCategoria,
                           onSelected: (_) => ref
                               .read(categoriaFiltroProvider.notifier)
-                              .state = c.idCategoria,
+                              .set(c.idCategoria),
                         ),
                       )),
                 ],

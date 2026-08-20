@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider;
+import 'package:provider/provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/theme_provider.dart';
+import 'legacy_provider/favoritos_notifier.dart';
 
 void main() {
-  runApp(const ProviderScope(child: RentStyleApp()));
+  runApp(
+    ProviderScope(
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => FavoritosNotifier()),
+        ],
+        child: const RentStyleApp(),
+      ),
+    ),
+  );
 }
 
 class RentStyleApp extends ConsumerWidget {

@@ -10,6 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+  shared_preferences: ^2.2.3
+
+  provider: ^6.1.2
+
   # Networking
   dio: ^5.4.3
 
